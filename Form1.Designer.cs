@@ -219,6 +219,7 @@
             TextBoxPass.Location = new Point(275, 128);
             TextBoxPass.Name = "TextBoxPass";
             TextBoxPass.Size = new Size(150, 23);
+            TextBoxPass.PasswordChar = '*';
             TextBoxPass.TabIndex = 12;
             // 
             // LabelPass

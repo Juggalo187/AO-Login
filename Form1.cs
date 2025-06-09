@@ -871,6 +871,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         private void ListBox1_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            TextBoxPass.PasswordChar = '*';
             // Always disable editing fields when selection changes
             TextBoxCharName.Enabled = false;
             TextBoxCharID.Enabled = false;
@@ -969,6 +970,8 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             TextBoxAccount.Enabled = true;
             TextBoxPass.Enabled = true;
             ComboBoxProfession.Enabled = true;
+            //TextBoxPass.UseSystemPasswordChar = false;
+            TextBoxPass.PasswordChar = '\0';
         }
 
         private void ApplyTheme(bool lightTheme)
@@ -1316,13 +1319,13 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 newForm.Show();
                 newForm.StartPosition = FormStartPosition.CenterParent;  // So we can set location manually
                 newForm.Location = new Point(this.Location.X + this.Width + 1, this.Location.Y);
-                var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
+                _ = Application.OpenForms.OfType<Form2>().FirstOrDefault();
 
             }
             else
             {
-                var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-                openForm2.Close();
+               //  var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
+               // openForm2.Close();
             }
 
 
@@ -1374,16 +1377,12 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             if (isOpen)
             {
                 var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
+                string? ComboBoxTextColorstring = ComboBoxTextColor.SelectedItem?.ToString();
 
-
-                if (Application.OpenForms["Form2"] != null)
+                if (openForm2 != null && ComboBoxTextColorstring != null)
                 {
-                    openForm2.Skuly(ComboBoxTextColor.SelectedItem?.ToString());
+                    openForm2.Skuly(ComboBoxTextColorstring);
                 }
-            }
-            else
-            {
-
             }
 
         }

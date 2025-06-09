@@ -364,8 +364,7 @@ namespace AO_Login
 
             if (MBListBox1.SelectedItems.Count >= 1)
             {
-
-                var selectedItems = MBListBox1.SelectedItems.Cast<string>().ToList();
+                _ = MBListBox1.SelectedItems.Cast<string>().ToList();
                 string selectedText = string.Join(Environment.NewLine, MBListBox1.SelectedItems.Cast<string>());
 
                 var confirm = MessageBox.Show($"Are you sure you want to delete \n{selectedText}?",
@@ -435,6 +434,7 @@ namespace AO_Login
                     MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
+                await Task.Delay(500);
 
                 try
                 {
