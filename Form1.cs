@@ -441,19 +441,19 @@ namespace AO_Login
         private void ButtonNew_Click(object? sender, EventArgs e)
         {
             // Enable input fields
-            TextBoxCharName.Enabled = true;
-            TextBoxCharID.Enabled = true;
-            TextBoxAccount.Enabled = true;
-            TextBoxPass.Enabled = true;
+                TextBoxCharName.Enabled = true;
+                TextBoxCharID.Enabled = true;
+                TextBoxAccount.Enabled = true;
+                TextBoxPass.Enabled = true;
 
-            // Clear the input fields
-            TextBoxCharName.Clear();
-            TextBoxCharID.Clear();
-            TextBoxAccount.Clear();
-            TextBoxPass.Clear();
+                // Clear the input fields
+                TextBoxCharName.Clear();
+                TextBoxCharID.Clear();
+                TextBoxAccount.Clear();
+                TextBoxPass.Clear();
 
             // Clear ListBox selection
-            ListBox1.ClearSelected();
+            //ListBox1.ClearSelected();
 
             ComboBoxProfession.Enabled = true;
             ComboBoxProfession.SelectedIndex = -1;
