@@ -53,6 +53,7 @@
             ComboBoxTextColor = new ComboBox();
             LabelTextColor = new Label();
             MBTeams = new Button();
+            NotesButton = new Button();
             ContextMenuListBox.SuspendLayout();
             SuspendLayout();
             // 
@@ -155,6 +156,7 @@
             ListBox1.SelectionMode = SelectionMode.MultiExtended;
             ListBox1.Size = new Size(193, 199);
             ListBox1.TabIndex = 9;
+            ListBox1.SelectedIndexChanged += ListBox1_SelectedIndexChanged_1;
             ListBox1.MouseDown += ListBox1_MouseDown;
             // 
             // ContextMenuListBox
@@ -218,8 +220,8 @@
             TextBoxPass.Enabled = false;
             TextBoxPass.Location = new Point(275, 128);
             TextBoxPass.Name = "TextBoxPass";
-            TextBoxPass.Size = new Size(150, 23);
             TextBoxPass.PasswordChar = '*';
+            TextBoxPass.Size = new Size(150, 23);
             TextBoxPass.TabIndex = 12;
             // 
             // LabelPass
@@ -313,11 +315,22 @@
             MBTeams.UseVisualStyleBackColor = true;
             MBTeams.Click += MBTeams_Click;
             // 
+            // NotesButton
+            // 
+            NotesButton.Location = new Point(205, 217);
+            NotesButton.Name = "NotesButton";
+            NotesButton.Size = new Size(51, 23);
+            NotesButton.TabIndex = 22;
+            NotesButton.Text = "Notes";
+            NotesButton.UseVisualStyleBackColor = true;
+            NotesButton.Click += NotesButton_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(437, 280);
+            Controls.Add(NotesButton);
             Controls.Add(MBTeams);
             Controls.Add(LabelTextColor);
             Controls.Add(checkBoxRK19);
@@ -340,7 +353,7 @@
             Controls.Add(EditButton);
             Controls.Add(ComboBoxTextColor);
             Controls.Add(CheckBoxTheme);
-            FormBorderStyle = FormBorderStyle.Fixed3D;
+            FormBorderStyle = FormBorderStyle.None;
             Name = "Form1";
             ShowIcon = false;
             SizeGripStyle = SizeGripStyle.Hide;
@@ -379,5 +392,6 @@
         private ToolStripMenuItem Team2StripMenuItem;
         private ToolStripMenuItem Team3StripMenuItem;
         private ToolStripMenuItem Team4StripMenuItem;
+        private Button NotesButton;
     }
 }

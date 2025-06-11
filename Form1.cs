@@ -35,6 +35,7 @@ namespace AO_Login
         ];
 
         private static readonly string SettingsDir = Path.Combine("data", "settings");
+        private static readonly string NotesDir = Path.Combine("data", "notes");
         private static readonly string OptionsFile = Path.Combine(SettingsDir, "options.json");
         private readonly AppOptions options = new(); // Add readonly modifier
         private static readonly JsonSerializerOptions CachedJsonSerializerOptions = new() { WriteIndented = true }; // Add readonly modifier
@@ -78,6 +79,8 @@ namespace AO_Login
         public Form1()
         {
             Directory.CreateDirectory(SettingsDir); // Ensure settings directory exists
+            Directory.CreateDirectory(NotesDir); // Ensure notes directory exists
+
 
             InitializeComponent();
             this.LocationChanged += Form1_LocationOrSizeChanged;
@@ -228,7 +231,7 @@ namespace AO_Login
 
             if (!aoPathExists || !aoqlPathExists)
             {
-                
+
                 MaximizeBox = false;
                 MdiChildrenMinimizedAnchorBottom = false;
                 MinimizeBox = false;
@@ -776,6 +779,8 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             foreach (var charName in selectedNames)
             {
                 string filePath = Path.Combine(dataDir, $"{charName}.bat");
+                string notesDir = Path.Combine("data", "notes");
+                string notespath = Path.Combine(notesDir, $"{charName}.txt"); // Change path if needed
 
                 var result = MessageBox.Show(
                     $"Are you sure you want to delete the launcher for '{charName}'?",
@@ -791,6 +796,12 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                         {
                             File.Delete(filePath);
                         }
+
+                        if (File.Exists(notespath))
+                        {
+                            File.Delete(notespath);
+                        }
+
                         ListBox1.Items.Remove(charName);
                     }
                     catch (Exception ex)
@@ -806,6 +817,14 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             }
 
             MessageBox.Show("Selected character launchers deleted successfully.", "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            Form3 openForm3 = Application.OpenForms.OfType<Form3>().FirstOrDefault();
+            bool isOpen = openForm3 != null;
+
+            if (isOpen)
+            {
+                openForm3.Close();
+            }
         }
 
         private async void LoginButton_Click(object sender, EventArgs e)
@@ -1288,8 +1307,8 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         private void MBTeams_Click(object sender, EventArgs e)
         {
-            bool isOpen = Application.OpenForms["Form2"] != null;
-
+            Form2 openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
+            bool isOpen = openForm2 != null;
 
             AppOptions tempOptions = new();
             if (File.Exists(OptionsFile))
@@ -1304,6 +1323,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                     tempOptions = new AppOptions();
                 }
             }
+
             options.DarkTheme = tempOptions.DarkTheme;
             options.TextColorName = tempOptions.TextColorName;
             CheckBoxTheme.Checked = options.DarkTheme;
@@ -1315,21 +1335,17 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
             if (!isOpen)
             {
-                Form2 newForm = new(options.DarkTheme, options.TextColorName);  // Create instance of the new form
+                Form2 newForm = new(options.DarkTheme, options.TextColorName)
+                {
+                    StartPosition = FormStartPosition.Manual,
+                    Location = new Point(this.Location.X + this.Width + 1, this.Location.Y)
+                };
                 newForm.Show();
-                newForm.StartPosition = FormStartPosition.CenterParent;  // So we can set location manually
-                newForm.Location = new Point(this.Location.X + this.Width + 1, this.Location.Y);
-                _ = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-
             }
             else
             {
-               //  var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-               // openForm2.Close();
+                openForm2.Close();  // Close the open Form2
             }
-
-
-
         }
 
         private void Form1_LocationOrSizeChanged(object? sender, EventArgs e)
@@ -1436,6 +1452,98 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 {
                     openForm2!.LoadListBoxFromFile3();
                 }
+            }
+        }
+
+        private void NotesButton_Click(object sender, EventArgs e)
+        {
+            // check if ListBox1 has a single item select
+
+            if (ListBox1.SelectedItems.Count == 0 || ListBox1.SelectedItems.Count > 1)
+            {
+                MessageBox.Show("You must select one item to view or add a note.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+
+            Form3 openForm3 = Application.OpenForms.OfType<Form3>().FirstOrDefault();
+            bool isOpen = openForm3 != null;
+            string ListBoxEntry = ListBox1.SelectedItem?.ToString();
+
+            AppOptions tempOptions = new();
+            if (File.Exists(OptionsFile))
+            {
+                try
+                {
+                    string json = File.ReadAllText(OptionsFile);
+                    tempOptions = JsonSerializer.Deserialize<AppOptions>(json) ?? new AppOptions();
+                }
+                catch
+                {
+                    tempOptions = new AppOptions();
+                }
+            }
+
+            options.DarkTheme = tempOptions.DarkTheme;
+            options.TextColorName = tempOptions.TextColorName;
+            CheckBoxTheme.Checked = options.DarkTheme;
+            if (!options.DarkTheme && !string.IsNullOrEmpty(options.TextColorName))
+            {
+                ComboBoxTextColor.SelectedItem = options.TextColorName;
+                ApplyTextColor(options.TextColorName);
+            }
+
+            if (!isOpen)
+            {
+                Form3 newForm = new(options.DarkTheme, options.TextColorName)
+                {
+                    StartPosition = FormStartPosition.Manual,
+                    Location = new Point(this.Location.X + this.Width + 1, this.Location.Y)
+                };
+                newForm.PassedText = ListBoxEntry;
+                newForm.TitleBarTextForm3 = $"{ListBoxEntry} Notes";
+                newForm.Show();
+            }
+            else
+            {
+                openForm3.Close();  // Close the open Form3
+            }
+
+
+
+
+        }
+
+        private void ListBox1_SelectedIndexChanged_1(object sender, EventArgs e)
+        {
+            string ListBoxEntry = ListBox1.SelectedItem?.ToString();
+            var openForm3 = Application.OpenForms.OfType<Form3>().FirstOrDefault();
+            if (openForm3 != null)
+            {
+                Form3 newForm = new(options.DarkTheme, options.TextColorName)
+                {
+                    StartPosition = FormStartPosition.Manual,
+                    Location = new Point(this.Location.X + this.Width + 1, this.Location.Y)
+                };
+                openForm3.PassedText = ListBoxEntry;
+                openForm3.TitleBarTextForm3 = $"{ListBoxEntry} Notes";
+
+                if (!string.IsNullOrEmpty(openForm3.PassedText))
+                {
+                    string notesDir = Path.Combine("data", "notes");
+                    string saveFilePath1 = Path.Combine(notesDir, $"{openForm3.PassedText}.txt"); // Change path if needed
+                    if (File.Exists(saveFilePath1))
+                    {
+                        openForm3.RichTextBox1.Text = File.ReadAllText(saveFilePath1);
+                    }
+                    else
+                    {
+                        openForm3.RichTextBox1.Clear();
+                    }
+
+                }
+                openForm3.Refresh();
+                openForm3.Show();
             }
         }
     }
