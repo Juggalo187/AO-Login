@@ -34,15 +34,16 @@
             // 
             // RichTextBox1
             // 
-            RichTextBox1.Location = new Point(12, 38);
+            RichTextBox1.BorderStyle = BorderStyle.FixedSingle;
+            RichTextBox1.Location = new Point(12, 32);
             RichTextBox1.Name = "RichTextBox1";
-            RichTextBox1.Size = new Size(776, 407);
+            RichTextBox1.Size = new Size(403, 216);
             RichTextBox1.TabIndex = 0;
             RichTextBox1.Text = "";
             // 
             // SaveButtonForm3
             // 
-            SaveButtonForm3.Location = new Point(345, 451);
+            SaveButtonForm3.Location = new Point(175, 254);
             SaveButtonForm3.Name = "SaveButtonForm3";
             SaveButtonForm3.Size = new Size(75, 23);
             SaveButtonForm3.TabIndex = 1;
@@ -54,7 +55,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 484);
+            ClientSize = new Size(437, 280);
             Controls.Add(SaveButtonForm3);
             Controls.Add(RichTextBox1);
             FormBorderStyle = FormBorderStyle.None;

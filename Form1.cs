@@ -566,7 +566,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             try
             {
                 File.WriteAllText(filePath, content);
-                MessageBox.Show("Character launcher batch file saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Character launcher batch file saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
 
                 // Refresh the ListBox to ensure it always shows the latest data
                 LoadCharacterNames();
@@ -624,7 +624,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                     if (!File.Exists(anarchyOnlineExe) && !File.Exists(anarchyExe))
                     {
                         MessageBox.Show("The selected folder does not contain AnarchyOnline.exe or Anarchy.exe. Please select the correct AO installation folder.",
-                            "Invalid AO Folder", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            "Invalid AO Folder", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -783,7 +783,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 string notespath = Path.Combine(notesDir, $"{charName}.txt"); // Change path if needed
 
                 var result = MessageBox.Show(
-                    $"Are you sure you want to delete the launcher for '{charName}'?",
+                    $"Are you sure you want to delete '{charName}'?",
                     "Confirm Delete",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
@@ -811,13 +811,6 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 }
             }
 
-            if (ListBox1.Items.Count == 0) // Replacing Any() with Count == 0
-            {
-                ListBox1.ClearSelected();
-            }
-
-            MessageBox.Show("Selected character launchers deleted successfully.", "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             Form3 openForm3 = Application.OpenForms.OfType<Form3>().FirstOrDefault();
             bool isOpen = openForm3 != null;
 
@@ -825,6 +818,13 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             {
                 openForm3.Close();
             }
+
+            if (ListBox1.Items.Count == 0) // Replacing Any() with Count == 0
+            {
+                ListBox1.ClearSelected();
+            }
+
+            MessageBox.Show("Selected character(s) deleted successfully.", "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private async void LoginButton_Click(object sender, EventArgs e)
@@ -865,7 +865,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 string filePath = Path.Combine(dataDir, $"{charName}.bat");
                 if (!File.Exists(filePath))
                 {
-                    MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"[{charName}] batch is not in the data folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
@@ -1498,10 +1498,10 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 Form3 newForm = new(options.DarkTheme, options.TextColorName)
                 {
                     StartPosition = FormStartPosition.Manual,
-                    Location = new Point(this.Location.X + this.Width + 1, this.Location.Y)
+                    Location = new Point(this.Location.X + this.Width + 1, this.Location.Y),
+                    PassedText = ListBoxEntry,
+                    TitleBarTextForm3 = $"{ListBoxEntry} Notes"
                 };
-                newForm.PassedText = ListBoxEntry;
-                newForm.TitleBarTextForm3 = $"{ListBoxEntry} Notes";
                 newForm.Show();
             }
             else
@@ -1520,11 +1520,14 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             var openForm3 = Application.OpenForms.OfType<Form3>().FirstOrDefault();
             if (openForm3 != null)
             {
-                Form3 newForm = new(options.DarkTheme, options.TextColorName)
+                using (Form3 newForm = new(options.DarkTheme, options.TextColorName)
                 {
                     StartPosition = FormStartPosition.Manual,
                     Location = new Point(this.Location.X + this.Width + 1, this.Location.Y)
-                };
+                })
+                {
+                }
+
                 openForm3.PassedText = ListBoxEntry;
                 openForm3.TitleBarTextForm3 = $"{ListBoxEntry} Notes";
 

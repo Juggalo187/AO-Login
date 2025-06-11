@@ -246,6 +246,7 @@ namespace AO_Login
             string notesDir = Path.Combine("data", "notes");
             string saveFilePath1 = Path.Combine(notesDir, $"{PassedText}.txt"); // Change path if needed
                 File.WriteAllText(saveFilePath1, RichTextBox1.Text);
+            MessageBox.Show($"Note for {PassedText} was saved.", "OK", MessageBoxButtons.OK, MessageBoxIcon.None);
         }
     }
 }
