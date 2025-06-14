@@ -218,7 +218,7 @@ namespace AO_Login
             dragging = false;
         }
 
-        private async void Login3_Click(object sender, EventArgs e)
+        private async void LoginButton3_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < MBListBox3.Items.Count; i++)
             {
@@ -269,6 +269,7 @@ namespace AO_Login
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
+                        LoginButton3.Enabled = false;
                     });
                 }
                 catch (Exception ex)
@@ -276,6 +277,7 @@ namespace AO_Login
                     MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            LoginButton3.Enabled = true;
         }
 
         private void ListBox4_SelectedIndexChanged(object sender, EventArgs e)
@@ -396,6 +398,8 @@ namespace AO_Login
 
         private async void LoginButton1_Click(object sender, EventArgs e)
         {
+            //var allNames = MBListBox1.Items.Cast<string>().ToList();
+
             for (int i = 0; i < MBListBox1.Items.Count; i++)
             {
                 MBListBox1.SetSelected(i, true);
@@ -405,6 +409,8 @@ namespace AO_Login
             var duplicateAccounts = selectedNames
                 .Select(name =>
                 {
+                    if (name.EndsWith("-rk19", StringComparison.OrdinalIgnoreCase))
+                        name = name.Substring(0, name.Length - 5);
                     var baseName = name.EndsWith("-rk19") ? name[..^5] : name;
                     var parts = baseName.Split('-', 2); // split only once
                     return parts.Length == 2 ? parts[0] : ""; // account name
@@ -434,11 +440,10 @@ namespace AO_Login
                     MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
-                await Task.Delay(500);
 
-                try
+                await Task.Run(() =>
                 {
-                    await Task.Run(() =>
+                    try
                     {
                         var process = new System.Diagnostics.Process();
                         process.StartInfo.FileName = "cmd.exe";
@@ -446,13 +451,15 @@ namespace AO_Login
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                        LoginButton1.Enabled = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                });
             }
+            LoginButton1.Enabled = true;
         }
         public void Skuly(string colors)
         {
@@ -549,6 +556,7 @@ namespace AO_Login
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
+                        LoginButton2.Enabled = false;
                     });
                 }
                 catch (Exception ex)
@@ -556,6 +564,7 @@ namespace AO_Login
                     MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            LoginButton2.Enabled = true;
         }
 
         private void DeleteButton2_Click(object sender, EventArgs e)
@@ -671,6 +680,7 @@ namespace AO_Login
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
+                        LoginButton4.Enabled = false;
                     });
                 }
                 catch (Exception ex)
@@ -678,6 +688,7 @@ namespace AO_Login
                     MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            LoginButton4.Enabled = true;
         }
 
         private void DeleteButton4_Click(object sender, EventArgs e)

@@ -242,6 +242,7 @@
             checkBoxRK19.TabIndex = 14;
             checkBoxRK19.Text = "RK19";
             checkBoxRK19.UseVisualStyleBackColor = false;
+            checkBoxRK19.CheckedChanged += checkBoxRK19_CheckedChanged;
             // 
             // ComboBoxProfession
             // 

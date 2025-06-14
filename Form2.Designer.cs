@@ -114,7 +114,7 @@
             LoginButton3.TabIndex = 6;
             LoginButton3.Text = "Login";
             LoginButton3.UseVisualStyleBackColor = true;
-            LoginButton3.Click += Login3_Click;
+            LoginButton3.Click += LoginButton3_Click;
             // 
             // LoginButton4
             // 

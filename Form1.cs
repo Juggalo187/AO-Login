@@ -441,16 +441,16 @@ namespace AO_Login
         private void ButtonNew_Click(object? sender, EventArgs e)
         {
             // Enable input fields
-                TextBoxCharName.Enabled = true;
-                TextBoxCharID.Enabled = true;
-                TextBoxAccount.Enabled = true;
-                TextBoxPass.Enabled = true;
+            TextBoxCharName.Enabled = true;
+            TextBoxCharID.Enabled = true;
+            TextBoxAccount.Enabled = true;
+            TextBoxPass.Enabled = true;
 
-                // Clear the input fields
-                TextBoxCharName.Clear();
-                TextBoxCharID.Clear();
-                TextBoxAccount.Clear();
-                TextBoxPass.Clear();
+            // Clear the input fields
+            TextBoxCharName.Clear();
+            TextBoxCharID.Clear();
+            TextBoxAccount.Clear();
+            TextBoxPass.Clear();
 
             // Clear ListBox selection
             //ListBox1.ClearSelected();
@@ -565,6 +565,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
             try
             {
+                TextBoxCharName.Enabled = true;
                 File.WriteAllText(filePath, content);
                 MessageBox.Show("Character launcher batch file saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.None);
 
@@ -829,6 +830,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         private async void LoginButton_Click(object sender, EventArgs e)
         {
+            
             if (ListBox1.SelectedItems.Count == 0)
             {
                 MessageBox.Show("Please select one or more characters to login.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -837,13 +839,8 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
             var selectedNames = ListBox1.SelectedItems.Cast<string>().ToList();
             var duplicateAccounts = selectedNames
-                .Select(name =>
-                {
-                    var baseName = name.EndsWith("-rk19") ? name[..^5] : name;
-                    var parts = baseName.Split('-', 2); // split only once
-                    return parts.Length == 2 ? parts[0] : ""; // account name
-                })
-                .GroupBy(account => account)
+                .Select(name => ExtractAccountName(name))
+                .GroupBy(account => account, StringComparer.OrdinalIgnoreCase)
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
                 .ToList();
@@ -860,12 +857,14 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
             string dataDir = "data";
 
+            List<string> missingFiles = new();
+
             foreach (var charName in selectedNames)
             {
                 string filePath = Path.Combine(dataDir, $"{charName}.bat");
                 if (!File.Exists(filePath))
                 {
-                    MessageBox.Show($"[{charName}] batch is not in the data folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    missingFiles.Add(charName);
                     continue;
                 }
 
@@ -873,12 +872,13 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 {
                     await Task.Run(() =>
                     {
-                        var process = new System.Diagnostics.Process();
+                        using var process = new System.Diagnostics.Process();
                         process.StartInfo.FileName = "cmd.exe";
                         process.StartInfo.Arguments = $"/c \"{filePath}\"";
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
+                        LoginButton.Enabled = false;
                     });
                 }
                 catch (Exception ex)
@@ -886,6 +886,12 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                     MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
+            if (missingFiles.Any())
+            {
+                MessageBox.Show($"Missing batch files for: {string.Join(", ", missingFiles)}", "Missing Files", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            LoginButton.Enabled = true;
         }
 
         private void ListBox1_SelectedIndexChanged(object? sender, EventArgs e)
@@ -957,6 +963,15 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             {
                 TextBoxAccount.Text = selectedParts[0];
                 TextBoxCharName.Text = selectedParts[1];
+            }
+
+            if (hasRk19)
+            {
+                checkBoxRK19.Checked = true;
+            }
+            else
+            {
+                checkBoxRK19.Checked = false;
             }
         }
 
@@ -1514,6 +1529,15 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         }
 
+        private string ExtractAccountName(string name)
+        {
+            if (name.EndsWith("-rk19"))
+                name = name[..^5]; // Remove "-rk19"
+
+            var parts = name.Split('-', 2);
+            return parts.Length == 2 ? parts[0] : name; // fall back to full name
+        }
+
         private void ListBox1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             string ListBoxEntry = ListBox1.SelectedItem?.ToString();
@@ -1548,6 +1572,11 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 openForm3.Refresh();
                 openForm3.Show();
             }
+        }
+
+        private void checkBoxRK19_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 
