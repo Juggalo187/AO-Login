@@ -440,6 +440,8 @@ namespace AO_Login
 
         private void ButtonNew_Click(object? sender, EventArgs e)
         {
+
+            ListBox1.SelectedItems.Clear();
             // Enable input fields
             TextBoxCharName.Enabled = true;
             TextBoxCharID.Enabled = true;
