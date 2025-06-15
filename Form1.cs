@@ -336,68 +336,24 @@ namespace AO_Login
             const int WM_NCHITTEST = 0x84;
             const int HTCLIENT = 1;
             const int HTCAPTION = 2;
-            const int HTLEFT = 10;
-            const int HTRIGHT = 11;
-            const int HTTOP = 12;
-            const int HTTOPLEFT = 13;
-            const int HTTOPRIGHT = 14;
-            const int HTBOTTOM = 15;
-            const int HTBOTTOMLEFT = 16;
-            const int HTBOTTOMRIGHT = 17;
 
             if (m.Msg == WM_NCHITTEST)
             {
                 base.WndProc(ref m);
                 Point pos = PointToClient(new Point(m.LParam.ToInt32()));
-                int grip = 8;
+
+                // Allow dragging if within custom title bar
                 if (pos.Y < titleBar.Height)
                 {
                     m.Result = (IntPtr)HTCAPTION;
                     return;
                 }
-                if (pos.X <= grip && pos.Y <= grip)
-                {
-                    m.Result = (IntPtr)HTTOPLEFT;
-                    return;
-                }
-                if (pos.X >= this.ClientSize.Width - grip && pos.Y <= grip)
-                {
-                    m.Result = (IntPtr)HTTOPRIGHT;
-                    return;
-                }
-                if (pos.X <= grip && pos.Y >= this.ClientSize.Height - grip)
-                {
-                    m.Result = (IntPtr)HTBOTTOMLEFT;
-                    return;
-                }
-                if (pos.X >= this.ClientSize.Width - grip && pos.Y >= this.ClientSize.Height - grip)
-                {
-                    m.Result = (IntPtr)HTBOTTOMRIGHT;
-                    return;
-                }
-                if (pos.X <= grip)
-                {
-                    m.Result = (IntPtr)HTLEFT;
-                    return;
-                }
-                if (pos.X >= this.ClientSize.Width - grip)
-                {
-                    m.Result = (IntPtr)HTRIGHT;
-                    return;
-                }
-                if (pos.Y <= grip)
-                {
-                    m.Result = (IntPtr)HTTOP;
-                    return;
-                }
-                if (pos.Y >= this.ClientSize.Height - grip)
-                {
-                    m.Result = (IntPtr)HTBOTTOM;
-                    return;
-                }
+
+                // Everywhere else behaves like regular client area (no resize zones)
                 m.Result = (IntPtr)HTCLIENT;
                 return;
             }
+
             base.WndProc(ref m);
         }
 
@@ -1357,6 +1313,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                     StartPosition = FormStartPosition.Manual,
                     Location = new Point(this.Location.X + this.Width + 1, this.Location.Y)
                 };
+                newForm.Owner = this;
                 newForm.Show();
             }
             else
@@ -1519,6 +1476,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                     PassedText = ListBoxEntry,
                     TitleBarTextForm3 = $"{ListBoxEntry} Notes"
                 };
+                newForm.Owner = this;
                 newForm.Show();
             }
             else
@@ -1572,6 +1530,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
                 }
                 openForm3.Refresh();
+                openForm3.Owner = this;
                 openForm3.Show();
             }
         }
@@ -1580,10 +1539,8 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
         {
 
         }
+
     }
-
-
-
 
     public class AppOptions
     {
