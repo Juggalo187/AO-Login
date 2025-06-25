@@ -248,34 +248,39 @@ namespace AO_Login
                 return;
             }
 
-            string dataDir = "data";
-
             foreach (var charName in MBListBox3.Items)
             {
-                string filePath = Path.Combine(dataDir, $"{charName}.bat");
-                if (!File.Exists(filePath))
+                string filePath1 = Path.Combine("data", "listbox1", $"{charName}.bat");
+                string filePath2 = Path.Combine("data", "listbox2", $"{charName}.bat");
+
+                string finalPath = File.Exists(filePath1) ? filePath1 :
+                                   File.Exists(filePath2) ? filePath2 : null;
+
+                if (finalPath == null)
                 {
-                    MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"[{charName}] Launcher batch file not found in either folder.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
-                try
+                await Task.Run(() =>
                 {
-                    await Task.Run(() =>
+                    try
                     {
                         var process = new System.Diagnostics.Process();
                         process.StartInfo.FileName = "cmd.exe";
-                        process.StartInfo.Arguments = $"/c \"{filePath}\"";
+                        process.StartInfo.Arguments = $"/c \"{finalPath}\"";
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
-                        LoginButton3.Enabled = false;
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                        LoginButton1.Invoke((Action)(() => LoginButton1.Enabled = false));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"[{charName}] Exception: {ex.Message}",
+                                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                });
             }
             LoginButton3.Enabled = true;
         }
@@ -430,14 +435,18 @@ namespace AO_Login
                 return;
             }
 
-            string dataDir = "data";
-
             foreach (var charName in MBListBox1.Items)
             {
-                string filePath = Path.Combine(dataDir, $"{charName}.bat");
-                if (!File.Exists(filePath))
+                string filePath1 = Path.Combine("data", "listbox1", $"{charName}.bat");
+                string filePath2 = Path.Combine("data", "listbox2", $"{charName}.bat");
+
+                string finalPath = File.Exists(filePath1) ? filePath1 :
+                                   File.Exists(filePath2) ? filePath2 : null;
+
+                if (finalPath == null)
                 {
-                    MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"[{charName}] Launcher batch file not found in either folder.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
@@ -447,15 +456,16 @@ namespace AO_Login
                     {
                         var process = new System.Diagnostics.Process();
                         process.StartInfo.FileName = "cmd.exe";
-                        process.StartInfo.Arguments = $"/c \"{filePath}\"";
+                        process.StartInfo.Arguments = $"/c \"{finalPath}\"";
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
-                        LoginButton1.Enabled = false;
+                        LoginButton1.Invoke((Action)(() => LoginButton1.Enabled = false));
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"[{charName}] Exception: {ex.Message}",
+                                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 });
             }
@@ -535,34 +545,39 @@ namespace AO_Login
                 return;
             }
 
-            string dataDir = "data";
-
             foreach (var charName in MBListBox2.Items)
             {
-                string filePath = Path.Combine(dataDir, $"{charName}.bat");
-                if (!File.Exists(filePath))
+                string filePath1 = Path.Combine("data", "listbox1", $"{charName}.bat");
+                string filePath2 = Path.Combine("data", "listbox2", $"{charName}.bat");
+
+                string finalPath = File.Exists(filePath1) ? filePath1 :
+                                   File.Exists(filePath2) ? filePath2 : null;
+
+                if (finalPath == null)
                 {
-                    MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"[{charName}] Launcher batch file not found in either folder.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
-                try
+                await Task.Run(() =>
                 {
-                    await Task.Run(() =>
+                    try
                     {
                         var process = new System.Diagnostics.Process();
                         process.StartInfo.FileName = "cmd.exe";
-                        process.StartInfo.Arguments = $"/c \"{filePath}\"";
+                        process.StartInfo.Arguments = $"/c \"{finalPath}\"";
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
-                        LoginButton2.Enabled = false;
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                        LoginButton1.Invoke((Action)(() => LoginButton1.Enabled = false));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"[{charName}] Exception: {ex.Message}",
+                                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                });
             }
             LoginButton2.Enabled = true;
         }
@@ -649,8 +664,6 @@ namespace AO_Login
                 .Select(g => g.Key)
                 .ToList();
 
-            string dataDir = "data";
-
             if (duplicateAccounts.Count > 0)
             {
                 MessageBox.Show(
@@ -663,30 +676,37 @@ namespace AO_Login
 
             foreach (var charName in MBListBox4.Items)
             {
-                string filePath = Path.Combine(dataDir, $"{charName}.bat");
-                if (!File.Exists(filePath))
+                string filePath1 = Path.Combine("data", "listbox1", $"{charName}.bat");
+                string filePath2 = Path.Combine("data", "listbox2", $"{charName}.bat");
+
+                string finalPath = File.Exists(filePath1) ? filePath1 :
+                                   File.Exists(filePath2) ? filePath2 : null;
+
+                if (finalPath == null)
                 {
-                    MessageBox.Show($"[{charName}] Launcher batch file not found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"[{charName}] Launcher batch file not found in either folder.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
-                try
+                await Task.Run(() =>
                 {
-                    await Task.Run(() =>
+                    try
                     {
                         var process = new System.Diagnostics.Process();
                         process.StartInfo.FileName = "cmd.exe";
-                        process.StartInfo.Arguments = $"/c \"{filePath}\"";
+                        process.StartInfo.Arguments = $"/c \"{finalPath}\"";
                         process.StartInfo.UseShellExecute = false;
                         process.StartInfo.CreateNoWindow = true;
                         process.Start();
-                        LoginButton4.Enabled = false;
-                    });
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                        LoginButton1.Invoke((Action)(() => LoginButton1.Enabled = false));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"[{charName}] Exception: {ex.Message}",
+                                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                });
             }
             LoginButton4.Enabled = true;
         }
