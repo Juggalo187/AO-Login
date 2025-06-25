@@ -221,13 +221,20 @@ namespace AO_Login
 
             // Attach event handler for ListBox1 SelectedIndexChanged
             ListBox1.SelectedIndexChanged += ListBox1_SelectedIndexChanged;
+            ListBox2.SelectedIndexChanged += ListBox2_SelectedIndexChanged;
 
             // Check if AOPath.txt and AOQLPath.txt exist
             string settingsDir = Path.Combine("data", "settings");
+            string Listbox1Dir = Path.Combine("data", "listbox1");
+            string Listbox2Dir = Path.Combine("data", "listbox2");
             string aoPathFile = Path.Combine(settingsDir, "AOPath.txt");
             string aoqlPathFile = Path.Combine(settingsDir, "AOQLPath.txt");
             bool aoPathExists = File.Exists(aoPathFile);
             bool aoqlPathExists = File.Exists(aoqlPathFile);
+            MoveBatFiles(@"data", Listbox1Dir);
+
+            Directory.CreateDirectory(Listbox1Dir); // Ensure notes directory exists
+            Directory.CreateDirectory(Listbox2Dir); // Ensure notes directory exists
 
             if (!aoPathExists || !aoqlPathExists)
             {
@@ -267,10 +274,13 @@ namespace AO_Login
                 TitleBarTextVisible = true;
 
                 LoadCharacterNames();
+                LoadCharacterNames2();
                 MaximizeBox = true;
                 MdiChildrenMinimizedAnchorBottom = true;
                 MinimizeBox = true;
             }
+            ListBox2.Visible = false;
+            LoginButton2.Visible = false;
             TitleBarMaximizeVisible = false;
 
             this.FormBorderStyle = FormBorderStyle.None;
@@ -305,6 +315,7 @@ namespace AO_Login
             };
             ComboBoxTextColor.BackColor = Color.Black; // This will affect the dropdown, not the text area
             this.Refresh();
+            Form1_Load();
         }
 
         private void TitleBar_MouseDown(object? sender, MouseEventArgs e)
@@ -389,6 +400,7 @@ namespace AO_Login
             {
                 options.TextColorName = ComboBoxTextColor.SelectedItem?.ToString();
             }
+
             string json = JsonSerializer.Serialize(options, CachedJsonSerializerOptions);
             File.WriteAllText(OptionsFile, json);
 
@@ -452,7 +464,7 @@ namespace AO_Login
             password = password.Trim();
 
             // Ensure the "data" directory exists
-            string dataDir = "data";
+            string dataDir = Path.Combine("data", "listbox1");
             Directory.CreateDirectory(dataDir);
 
             // Read AOQuickLauncher path from AOQLPath.txt
@@ -529,6 +541,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
                 // Refresh the ListBox to ensure it always shows the latest data
                 LoadCharacterNames();
+                LoadCharacterNames2();
 
                 // Select the new/updated item in the ListBox
                 string listBoxEntry = isRk19
@@ -664,7 +677,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         private void LoadCharacterNames()
         {
-            string dataDir = "data";
+            string dataDir = Path.Combine("data", "ListBox1");
             ListBox1.Items.Clear();
             ListBox1.SelectedItems.Clear();
 
@@ -700,6 +713,48 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 foreach (var displayName in displayNames)
                 {
                     ListBox1.Items.Add(displayName);
+                }
+            }
+        }
+
+        private void LoadCharacterNames2()
+        {
+            string dataDir2 = Path.Combine("data", "ListBox2");
+            ListBox2.Items.Clear();
+            ListBox2.SelectedItems.Clear();
+
+            if (Directory.Exists(dataDir2))
+            {
+                var files = Directory.GetFiles(dataDir2, "*.bat");
+                var displayNames = new List<string>();
+                foreach (var file in files)
+                {
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    // Expecting filename: account-charName or account-charName-rk19
+                    string account, charName;
+                    bool hasRk19 = name.EndsWith("-rk19");
+                    var baseName = hasRk19 ? name[..^5] : name;
+                    var parts = baseName.Split('-', 2);
+                    if (parts.Length == 2)
+                    {
+                        account = parts[0];
+                        charName = parts[1];
+                        string displayName = hasRk19
+                            ? $"{account}-{charName}-rk19"
+                            : $"{account}-{charName}";
+                        displayNames.Add(displayName);
+                    }
+                    else
+                    {
+                        // fallback to original name if parsing fails
+                        displayNames.Add(name);
+                    }
+                }
+                // Sort alphabetically
+                displayNames.Sort(StringComparer.OrdinalIgnoreCase);
+                foreach (var displayName in displayNames)
+                {
+                    ListBox2.Items.Add(displayName);
                 }
             }
         }
@@ -788,7 +843,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         private async void LoginButton_Click(object sender, EventArgs e)
         {
-            
+
             if (ListBox1.SelectedItems.Count == 0)
             {
                 MessageBox.Show("Please select one or more characters to login.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -813,7 +868,7 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 return;
             }
 
-            string dataDir = "data";
+            string dataDir = Path.Combine("data", "listbox1");
 
             List<string> missingFiles = new();
 
@@ -852,6 +907,72 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
             LoginButton.Enabled = true;
         }
 
+        private async void LoginButton2_Click(object sender, EventArgs e)
+        {
+
+            if (ListBox2.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Please select one or more characters to login.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var selectedNames = ListBox2.SelectedItems.Cast<string>().ToList();
+            var duplicateAccounts = selectedNames
+                .Select(name => ExtractAccountName(name))
+                .GroupBy(account => account, StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateAccounts.Count > 0)
+            {
+                MessageBox.Show(
+                    $"You have selected multiple characters with the same account name: {string.Join(", ", duplicateAccounts)}. Please select only one per account.",
+                    "Duplicate Account Selection",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            string dataDir = Path.Combine("data", "listbox2");
+
+            List<string> missingFiles = new();
+
+            foreach (var charName in selectedNames)
+            {
+                string filePath = Path.Combine(dataDir, $"{charName}.bat");
+                if (!File.Exists(filePath))
+                {
+                    missingFiles.Add(charName);
+                    continue;
+                }
+
+                try
+                {
+                    await Task.Run(() =>
+                    {
+                        using var process = new System.Diagnostics.Process();
+                        process.StartInfo.FileName = "cmd.exe";
+                        process.StartInfo.Arguments = $"/c \"{filePath}\"";
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.CreateNoWindow = true;
+                        process.Start();
+                        LoginButton2.Enabled = false;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"[{charName}] Exception: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            if (missingFiles.Any())
+            {
+                MessageBox.Show($"Missing batch files for: {string.Join(", ", missingFiles)}", "Missing Files", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            LoginButton2.Enabled = true;
+        }
+
         private void ListBox1_SelectedIndexChanged(object? sender, EventArgs e)
         {
             TextBoxPass.PasswordChar = '*';
@@ -879,7 +1000,88 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
             string selected = ListBox1.SelectedItem.ToString() ?? "";
             bool hasRk19 = selected.EndsWith("-rk19");
-            string dataDir = "data";
+            string dataDir = Path.Combine("data", "listbox1");
+            string fileName = selected + ".bat";
+            string filePath = Path.Combine(dataDir, fileName);
+
+            if (File.Exists(filePath))
+            {
+                var lines = File.ReadAllLines(filePath);
+                string? profession = lines.FirstOrDefault(line => line.StartsWith(":: Profession: "))?[":: Profession: ".Length..].Trim();
+                ComboBoxProfession.SelectedItem = !string.IsNullOrEmpty(profession) ? profession : null;
+
+                string? launcherLine = lines.FirstOrDefault(l => l.TrimStart().StartsWith("dotnet AOQuickLauncher.dll"));
+                if (launcherLine != null)
+                {
+                    var launcherParts = launcherLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    int offset = hasRk19 && launcherParts.Length > 2 && launcherParts[2] == "--rk19" ? 3 : 2;
+
+                    if (launcherParts.Length > offset + 2)
+                    {
+                        TextBoxAccount.Text = launcherParts[offset];
+                        TextBoxPass.Text = launcherParts[offset + 1];
+                        TextBoxCharID.Text = launcherParts[offset + 2];
+                    }
+                    else
+                    {
+                        TextBoxAccount.Clear();
+                        TextBoxPass.Clear();
+                        TextBoxCharID.Clear();
+                    }
+                }
+                else
+                {
+                    TextBoxAccount.Clear();
+                    TextBoxPass.Clear();
+                    TextBoxCharID.Clear();
+                }
+            }
+
+            var selectedParts = hasRk19 ? selected[..^5].Split('-', 2) : selected.Split('-', 2);
+            if (selectedParts.Length == 2)
+            {
+                TextBoxAccount.Text = selectedParts[0];
+                TextBoxCharName.Text = selectedParts[1];
+            }
+
+            if (hasRk19)
+            {
+                checkBoxRK19.Checked = true;
+            }
+            else
+            {
+                checkBoxRK19.Checked = false;
+            }
+        }
+
+        private void ListBox2_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            TextBoxPass.PasswordChar = '*';
+            // Always disable editing fields when selection changes
+            TextBoxCharName.Enabled = false;
+            TextBoxCharID.Enabled = false;
+            TextBoxAccount.Enabled = false;
+            TextBoxPass.Enabled = false;
+            ComboBoxProfession.Enabled = false;
+
+            if (ListBox2.SelectedItems.Count > 1)
+            {
+                TextBoxCharName.Clear();
+                TextBoxCharID.Clear();
+                TextBoxAccount.Clear();
+                TextBoxPass.Clear();
+                if (checkBoxRK19 != null)
+                    checkBoxRK19.Checked = false;
+                ComboBoxProfession.SelectedIndex = -1;
+                return;
+            }
+
+            if (ListBox2.SelectedItem == null)
+                return;
+
+            string selected = ListBox2.SelectedItem.ToString() ?? "";
+            bool hasRk19 = selected.EndsWith("-rk19");
+            string dataDir = Path.Combine("data", "listbox2");
             string fileName = selected + ".bat";
             string filePath = Path.Combine(dataDir, fileName);
 
@@ -1148,36 +1350,17 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                         ListBox1.ClearSelected();
                         ListBox1.SelectedIndex = index;
                     }
+
+                    // Show context menu here
+                    ContextMenuListBox.Show(ListBox1, e.Location);
                 }
             }
         }
 
         private void Team1StripMenuItem_Click(object sender, EventArgs e)
         {
-            var selectedItems = ListBox1.SelectedItems.Cast<string>().ToList();
-            // Add only selected items to ListBox2 and save them
-            foreach (var item in selectedItems)
-            {
-                if (!ListBox1.Items.Contains(item))
-                    ListBox1.Items.Add(item);
-            }
-
-            // Save to file
-            SaveSelectedItemsToFile(selectedItems);
-
-            var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-
-            bool isOpen = Application.OpenForms["Form2"] != null;
-
-            if (isOpen)
-            {
-                if (openForm2 != null)
-                {
-                    openForm2!.LoadListBoxFromFile();
-                }
-            }
-
-
+            HandleTeamSelection(ListBox1, SaveSelectedItemsToFile, form => form.LoadListBoxFromFile());
+            HandleTeamSelection(ListBox2, SaveSelectedItemsToFile, form => form.LoadListBoxFromFile());
 
         }
 
@@ -1331,32 +1514,29 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                 openForm2.Location = new Point(this.Location.X + this.Width + 1, this.Location.Y);
             }
         }
+        private void ContextMenuListBox_Opening(object sender, CancelEventArgs e)
+        {
+            // Check which control triggered the context menu
+            if (ContextMenuListBox.SourceControl == ListBox2)
+            {
+                // Hide the specific item (e.g., the first item)
+                ContextMenuListBox.Items[4].Visible = false;
+                ContextMenuListBox.Items[5].Visible = true;
+            }
+            else
+            {
+                // Make sure it's visible for other controls like listBox1
+                ContextMenuListBox.Items[4].Visible = true;
+                ContextMenuListBox.Items[5].Visible = false;
+            }
+        }
+
 
         private void Team2StripMenuItem_Click(object sender, EventArgs e)
         {
+            HandleTeamSelection(ListBox1, SaveSelectedItemsToFile2, form => form.LoadListBoxFromFile2());
+            HandleTeamSelection(ListBox2, SaveSelectedItemsToFile2, form => form.LoadListBoxFromFile2());
 
-            var selectedItems = ListBox1.SelectedItems.Cast<string>().ToList();
-            // Add only selected items to ListBox2 and save them
-            foreach (var item in selectedItems)
-            {
-                if (!ListBox1.Items.Contains(item))
-                    ListBox1.Items.Add(item);
-            }
-
-            // Save to file
-            SaveSelectedItemsToFile2(selectedItems);
-
-            var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-
-            bool isOpen = Application.OpenForms["Form2"] != null;
-
-            if (isOpen)
-            {
-                if (openForm2 != null)
-                {
-                    openForm2!.LoadListBoxFromFile2();
-                }
-            }
 
         }
 
@@ -1377,72 +1557,52 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         }
 
-        private void Team4StripMenuItem_Click(object sender, EventArgs e)
-        {
-            var selectedItems = ListBox1.SelectedItems.Cast<string>().ToList();
-            // Add only selected items to ListBox2 and save them
-            foreach (var item in selectedItems)
-            {
-                if (!ListBox1.Items.Contains(item))
-                    ListBox1.Items.Add(item);
-            }
-
-            // Save to file
-            SaveSelectedItemsToFile4(selectedItems);
-
-            var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-
-            bool isOpen = Application.OpenForms["Form2"] != null;
-
-            if (isOpen)
-            {
-                if (openForm2 != null)
-                {
-                    openForm2!.LoadListBoxFromFile4();
-                }
-            }
-        }
-
         private void Team3StripMenuItem_Click(object sender, EventArgs e)
         {
-            var selectedItems = ListBox1.SelectedItems.Cast<string>().ToList();
-            // Add only selected items to ListBox2 and save them
-            foreach (var item in selectedItems)
-            {
-                if (!ListBox1.Items.Contains(item))
-                    ListBox1.Items.Add(item);
-            }
+            HandleTeamSelection(ListBox1, SaveSelectedItemsToFile3, form => form.LoadListBoxFromFile3());
+            HandleTeamSelection(ListBox2, SaveSelectedItemsToFile3, form => form.LoadListBoxFromFile3());
 
-            // Save to file
-            SaveSelectedItemsToFile3(selectedItems);
-
-            var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
-
-            bool isOpen = Application.OpenForms["Form2"] != null;
-
-            if (isOpen)
-            {
-                if (openForm2 != null)
-                {
-                    openForm2!.LoadListBoxFromFile3();
-                }
-            }
         }
+        private void Team4StripMenuItem_Click(object sender, EventArgs e)
+        {
+            HandleTeamSelection(ListBox1, SaveSelectedItemsToFile4, form => form.LoadListBoxFromFile4());
+            HandleTeamSelection(ListBox2, SaveSelectedItemsToFile4, form => form.LoadListBoxFromFile4());
+
+        }
+
+        private void HandleTeamSelection(ListBox sourceListBox, Action<List<string>> saveMethod, Action<Form2> loadMethod)
+        {
+            var selectedItems = sourceListBox.SelectedItems.Cast<string>().ToList();
+            if (selectedItems.Count == 0)
+                return;
+
+            saveMethod(selectedItems); // Save to specific file
+            var openForm2 = Application.OpenForms.OfType<Form2>().FirstOrDefault();
+            loadMethod?.Invoke(openForm2);
+        }
+
 
         private void NotesButton_Click(object sender, EventArgs e)
         {
-            // check if ListBox1 has a single item select
+            ListBox activeListBox = null;
 
-            if (ListBox1.SelectedItems.Count == 0 || ListBox1.SelectedItems.Count > 1)
+            // Determine which ListBox has one selected item
+            if (ListBox1.SelectedItems.Count == 1)
+                activeListBox = ListBox1;
+            else if (ListBox2.SelectedItems.Count == 1)
+                activeListBox = ListBox2;
+
+            if (activeListBox == null)
             {
-                MessageBox.Show("You must select one item to view or add a note.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("You must select one item from either ListBox1 or ListBox2 to view or add a note.",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
+            string ListBoxEntry = activeListBox.SelectedItem?.ToString();
 
             Form3 openForm3 = Application.OpenForms.OfType<Form3>().FirstOrDefault();
             bool isOpen = openForm3 != null;
-            string ListBoxEntry = ListBox1.SelectedItem?.ToString();
 
             AppOptions tempOptions = new();
             if (File.Exists(OptionsFile))
@@ -1474,19 +1634,15 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
                     StartPosition = FormStartPosition.Manual,
                     Location = new Point(this.Location.X + this.Width + 1, this.Location.Y),
                     PassedText = ListBoxEntry,
-                    TitleBarTextForm3 = $"{ListBoxEntry} Notes"
+                    TitleBarTextForm3 = $"{ListBoxEntry} Notes",
+                    Owner = this
                 };
-                newForm.Owner = this;
                 newForm.Show();
             }
             else
             {
-                openForm3.Close();  // Close the open Form3
+                openForm3.Close();
             }
-
-
-
-
         }
 
         private string ExtractAccountName(string name)
@@ -1540,11 +1696,155 @@ dotnet AOQuickLauncher.dll {account} {password} {charID}
 
         }
 
+        private void Listbox1Button_Click(object sender, EventArgs e)
+        {
+            // If ListBox1 is currently visible, hide it and show ListBox2
+            if (ListBox2.Visible)
+            {
+                ListBox2.Hide();
+                ListBox1.Show();
+                LoginButton2.Enabled = false;
+                LoginButton2.Visible = false;
+                LoginButton.Enabled = true;
+                LoginButton.Visible = true;
+                ListBox2.SelectedIndex = -1;
+                LoadCharacterNames();
+            }
+        }
+
+        private void Listbox2Button_Click(object sender, EventArgs e)
+        {
+            // If ListBox1 is currently visible, hide it and show ListBox2
+            if (ListBox1.Visible)
+            {
+                ListBox1.Hide();
+                ListBox2.Show();
+
+            }
+        }
+
+        private void Form1_Load()
+        {
+            if (ListBox1.Visible)
+            {
+                ListBox2.Hide();
+                ListBox1.Show();
+                LoadCharacterNames();
+            }
+            else
+            {
+                ListBox2.Hide();
+                ListBox1.Show();
+                LoadCharacterNames2();
+            }
+        }
+
+        private void MoveBatFiles(string sourceDir, string destinationDir)
+        {
+            if (!Directory.Exists(sourceDir))
+            {
+                MessageBox.Show("Source directory does not exist.");
+                return;
+            }
+
+            if (!Directory.Exists(destinationDir))
+            {
+                Directory.CreateDirectory(destinationDir);
+            }
+
+            string[] batFiles = Directory.GetFiles(sourceDir, "*.bat");
+
+            foreach (string file in batFiles)
+            {
+                string fileName = Path.GetFileName(file);
+                string destPath = Path.Combine(destinationDir, fileName);
+
+                try
+                {
+                    File.Move(file, destPath);
+                }
+                catch (IOException ex)
+                {
+                    MessageBox.Show($"Error moving file '{fileName}': {ex.Message}");
+                }
+            }
+        }
+
+        private void Listbox2Button_Click_1(object sender, EventArgs e)
+        {
+            // If ListBox1 is currently visible, hide it and show ListBox2
+            if (ListBox1.Visible)
+            {
+                ListBox1.Hide();
+                ListBox2.Show();
+                LoginButton.Enabled = false;
+                LoginButton.Visible = false;
+                LoginButton2.Enabled = true;
+                LoginButton2.Visible = true;
+                ListBox1.SelectedIndex = -1;
+                LoadCharacterNames2();
+            }
+        }
+
+        private void MoveToListbox2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string sourceFolder = Path.Combine("data", "listbox1");
+            string targetFolder = Path.Combine("data", "listbox2");
+            var selectedItems = ListBox1.SelectedItems.Cast<string>().ToList();
+
+            foreach (var nameWithoutExtension in selectedItems)
+            {
+                try
+                {
+                    string fileName = nameWithoutExtension + ".bat";
+                    string sourcePath = Path.Combine(sourceFolder, fileName);
+                    string destPath = Path.Combine(targetFolder, fileName);
+
+                    File.Move(sourcePath, destPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error moving '{nameWithoutExtension}.bat': {ex.Message}");
+                }
+            }
+            LoadCharacterNames();
+
+        }
+
+        private void MoveToListbox1ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string sourceFolder = Path.Combine("data", "listbox2");
+            string targetFolder = Path.Combine("data", "listbox1");
+            var selectedItems = ListBox2.SelectedItems.Cast<string>().ToList();
+
+            foreach (var nameWithoutExtension in selectedItems)
+            {
+                try
+                {
+                    string fileName = nameWithoutExtension + ".bat";
+                    string sourcePath = Path.Combine(sourceFolder, fileName);
+                    string destPath = Path.Combine(targetFolder, fileName);
+
+                    File.Move(sourcePath, destPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error moving '{nameWithoutExtension}.bat': {ex.Message}");
+                }
+            }
+            LoadCharacterNames2();
+
+        }
+
+        private void LabelTextColor_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
     public class AppOptions
     {
         public bool DarkTheme { get; set; }
-        public string? TextColorName { get; set; } // Add this property
+        public string? TextColorName { get; set; }
     }
 }

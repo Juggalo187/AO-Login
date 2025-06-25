@@ -1,4 +1,6 @@
-﻿namespace AO_Login
+﻿using System.Windows.Forms;
+
+namespace AO_Login
 {
     partial class Form1 : Form
     {
@@ -41,6 +43,8 @@
             Team2StripMenuItem = new ToolStripMenuItem();
             Team3StripMenuItem = new ToolStripMenuItem();
             Team4StripMenuItem = new ToolStripMenuItem();
+            MoveToListbox2ToolStripMenuItem = new ToolStripMenuItem();
+            moveToListbox1ToolStripMenuItem = new ToolStripMenuItem();
             ButtonAOPath = new Button();
             LoginButton = new Button();
             TextBoxPass = new TextBox();
@@ -54,6 +58,10 @@
             LabelTextColor = new Label();
             MBTeams = new Button();
             NotesButton = new Button();
+            ListBox2 = new ListBox();
+            Listbox1Button = new Button();
+            Listbox2Button = new Button();
+            LoginButton2 = new Button();
             ContextMenuListBox.SuspendLayout();
             SuspendLayout();
             // 
@@ -61,7 +69,7 @@
             // 
             TextBoxAccount.BorderStyle = BorderStyle.FixedSingle;
             TextBoxAccount.Enabled = false;
-            TextBoxAccount.Location = new Point(275, 70);
+            TextBoxAccount.Location = new Point(281, 95);
             TextBoxAccount.Name = "TextBoxAccount";
             TextBoxAccount.Size = new Size(150, 23);
             TextBoxAccount.TabIndex = 0;
@@ -71,7 +79,7 @@
             // 
             TextBoxCharID.BorderStyle = BorderStyle.FixedSingle;
             TextBoxCharID.Enabled = false;
-            TextBoxCharID.Location = new Point(275, 157);
+            TextBoxCharID.Location = new Point(281, 182);
             TextBoxCharID.Name = "TextBoxCharID";
             TextBoxCharID.Size = new Size(150, 23);
             TextBoxCharID.TabIndex = 1;
@@ -81,7 +89,7 @@
             // 
             TextBoxCharName.BorderStyle = BorderStyle.FixedSingle;
             TextBoxCharName.Enabled = false;
-            TextBoxCharName.Location = new Point(275, 99);
+            TextBoxCharName.Location = new Point(281, 124);
             TextBoxCharName.Name = "TextBoxCharName";
             TextBoxCharName.Size = new Size(150, 23);
             TextBoxCharName.TabIndex = 3;
@@ -90,7 +98,7 @@
             // LabelAccountName
             // 
             LabelAccountName.AutoSize = true;
-            LabelAccountName.Location = new Point(208, 72);
+            LabelAccountName.Location = new Point(214, 97);
             LabelAccountName.Name = "LabelAccountName";
             LabelAccountName.Size = new Size(55, 15);
             LabelAccountName.TabIndex = 2;
@@ -100,7 +108,7 @@
             // LabelCharName
             // 
             LabelCharName.AutoSize = true;
-            LabelCharName.Location = new Point(205, 101);
+            LabelCharName.Location = new Point(211, 126);
             LabelCharName.Name = "LabelCharName";
             LabelCharName.Size = new Size(61, 15);
             LabelCharName.TabIndex = 4;
@@ -109,7 +117,7 @@
             // LabelCharID
             // 
             LabelCharID.AutoSize = true;
-            LabelCharID.Location = new Point(208, 159);
+            LabelCharID.Location = new Point(214, 184);
             LabelCharID.Name = "LabelCharID";
             LabelCharID.Size = new Size(46, 15);
             LabelCharID.TabIndex = 5;
@@ -118,7 +126,7 @@
             // 
             // ButtonSave
             // 
-            ButtonSave.Location = new Point(275, 217);
+            ButtonSave.Location = new Point(281, 242);
             ButtonSave.Name = "ButtonSave";
             ButtonSave.Size = new Size(67, 23);
             ButtonSave.TabIndex = 6;
@@ -128,7 +136,7 @@
             // 
             // ButtonNew
             // 
-            ButtonNew.Location = new Point(274, 41);
+            ButtonNew.Location = new Point(280, 66);
             ButtonNew.Name = "ButtonNew";
             ButtonNew.Size = new Size(66, 23);
             ButtonNew.TabIndex = 7;
@@ -138,7 +146,7 @@
             // 
             // ButtonDelete
             // 
-            ButtonDelete.Location = new Point(85, 246);
+            ButtonDelete.Location = new Point(91, 271);
             ButtonDelete.Name = "ButtonDelete";
             ButtonDelete.Size = new Size(66, 23);
             ButtonDelete.TabIndex = 8;
@@ -151,7 +159,7 @@
             ListBox1.ContextMenuStrip = ContextMenuListBox;
             ListBox1.FormattingEnabled = true;
             ListBox1.ItemHeight = 15;
-            ListBox1.Location = new Point(6, 41);
+            ListBox1.Location = new Point(12, 66);
             ListBox1.Name = "ListBox1";
             ListBox1.SelectionMode = SelectionMode.MultiExtended;
             ListBox1.Size = new Size(193, 199);
@@ -161,9 +169,10 @@
             // 
             // ContextMenuListBox
             // 
-            ContextMenuListBox.Items.AddRange(new ToolStripItem[] { Team1StripMenuItem, Team2StripMenuItem, Team3StripMenuItem, Team4StripMenuItem });
+            ContextMenuListBox.Items.AddRange(new ToolStripItem[] { Team1StripMenuItem, Team2StripMenuItem, Team3StripMenuItem, Team4StripMenuItem, MoveToListbox2ToolStripMenuItem, moveToListbox1ToolStripMenuItem });
             ContextMenuListBox.Name = "ContextMenuListBox";
-            ContextMenuListBox.Size = new Size(173, 92);
+            ContextMenuListBox.Size = new Size(173, 136);
+            ContextMenuListBox.Opening += ContextMenuListBox_Opening;
             // 
             // Team1StripMenuItem
             // 
@@ -193,9 +202,23 @@
             Team4StripMenuItem.Text = "Add to MB Team 4";
             Team4StripMenuItem.Click += Team4StripMenuItem_Click;
             // 
+            // MoveToListbox2ToolStripMenuItem
+            // 
+            MoveToListbox2ToolStripMenuItem.Name = "MoveToListbox2ToolStripMenuItem";
+            MoveToListbox2ToolStripMenuItem.Size = new Size(172, 22);
+            MoveToListbox2ToolStripMenuItem.Text = "Move to Listbox 2";
+            MoveToListbox2ToolStripMenuItem.Click += MoveToListbox2ToolStripMenuItem_Click;
+            // 
+            // moveToListbox1ToolStripMenuItem
+            // 
+            moveToListbox1ToolStripMenuItem.Name = "moveToListbox1ToolStripMenuItem";
+            moveToListbox1ToolStripMenuItem.Size = new Size(172, 22);
+            moveToListbox1ToolStripMenuItem.Text = "Move to Listbox 1";
+            moveToListbox1ToolStripMenuItem.Click += MoveToListbox1ToolStripMenuItem_Click;
+            // 
             // ButtonAOPath
             // 
-            ButtonAOPath.Location = new Point(111, 122);
+            ButtonAOPath.Location = new Point(117, 147);
             ButtonAOPath.Name = "ButtonAOPath";
             ButtonAOPath.Size = new Size(214, 23);
             ButtonAOPath.TabIndex = 10;
@@ -206,7 +229,7 @@
             // 
             // LoginButton
             // 
-            LoginButton.Location = new Point(9, 247);
+            LoginButton.Location = new Point(15, 272);
             LoginButton.Name = "LoginButton";
             LoginButton.Size = new Size(66, 23);
             LoginButton.TabIndex = 11;
@@ -218,7 +241,7 @@
             // 
             TextBoxPass.BorderStyle = BorderStyle.FixedSingle;
             TextBoxPass.Enabled = false;
-            TextBoxPass.Location = new Point(275, 128);
+            TextBoxPass.Location = new Point(281, 153);
             TextBoxPass.Name = "TextBoxPass";
             TextBoxPass.PasswordChar = '*';
             TextBoxPass.Size = new Size(150, 23);
@@ -227,7 +250,7 @@
             // LabelPass
             // 
             LabelPass.AutoSize = true;
-            LabelPass.Location = new Point(208, 130);
+            LabelPass.Location = new Point(214, 155);
             LabelPass.Name = "LabelPass";
             LabelPass.Size = new Size(60, 15);
             LabelPass.TabIndex = 13;
@@ -236,7 +259,7 @@
             // checkBoxRK19
             // 
             checkBoxRK19.AutoSize = true;
-            checkBoxRK19.Location = new Point(216, 45);
+            checkBoxRK19.Location = new Point(222, 70);
             checkBoxRK19.Name = "checkBoxRK19";
             checkBoxRK19.Size = new Size(52, 19);
             checkBoxRK19.TabIndex = 14;
@@ -250,7 +273,7 @@
             ComboBoxProfession.Enabled = false;
             ComboBoxProfession.FormattingEnabled = true;
             ComboBoxProfession.Items.AddRange(new object[] { "Adventurer", "Bureaucrat", "Doctor", "Enforcer", "Engineer", "Fixer", "Keeper", "Martial Artist" });
-            ComboBoxProfession.Location = new Point(275, 184);
+            ComboBoxProfession.Location = new Point(281, 209);
             ComboBoxProfession.Name = "ComboBoxProfession";
             ComboBoxProfession.Size = new Size(150, 23);
             ComboBoxProfession.TabIndex = 16;
@@ -258,7 +281,7 @@
             // labelProfession
             // 
             labelProfession.AutoSize = true;
-            labelProfession.Location = new Point(205, 187);
+            labelProfession.Location = new Point(211, 212);
             labelProfession.Name = "labelProfession";
             labelProfession.Size = new Size(65, 15);
             labelProfession.TabIndex = 15;
@@ -266,7 +289,7 @@
             // 
             // EditButton
             // 
-            EditButton.Location = new Point(348, 217);
+            EditButton.Location = new Point(354, 242);
             EditButton.Name = "EditButton";
             EditButton.Size = new Size(66, 23);
             EditButton.TabIndex = 17;
@@ -277,7 +300,7 @@
             // CheckBoxTheme
             // 
             CheckBoxTheme.AutoSize = true;
-            CheckBoxTheme.Location = new Point(341, 250);
+            CheckBoxTheme.Location = new Point(347, 275);
             CheckBoxTheme.Name = "CheckBoxTheme";
             CheckBoxTheme.Size = new Size(93, 19);
             CheckBoxTheme.TabIndex = 18;
@@ -290,7 +313,7 @@
             ComboBoxTextColor.DropDownStyle = ComboBoxStyle.DropDownList;
             ComboBoxTextColor.FormattingEnabled = true;
             ComboBoxTextColor.Items.AddRange(new object[] { "White", "Yellow", "Orange", "Green", "Blue", "Pink", "Purple" });
-            ComboBoxTextColor.Location = new Point(235, 248);
+            ComboBoxTextColor.Location = new Point(241, 272);
             ComboBoxTextColor.Name = "ComboBoxTextColor";
             ComboBoxTextColor.Size = new Size(90, 23);
             ComboBoxTextColor.TabIndex = 19;
@@ -300,7 +323,7 @@
             // LabelTextColor
             // 
             LabelTextColor.AutoSize = true;
-            LabelTextColor.Location = new Point(166, 252);
+            LabelTextColor.Location = new Point(172, 277);
             LabelTextColor.Name = "LabelTextColor";
             LabelTextColor.Size = new Size(63, 15);
             LabelTextColor.TabIndex = 20;
@@ -308,7 +331,7 @@
             // 
             // MBTeams
             // 
-            MBTeams.Location = new Point(346, 42);
+            MBTeams.Location = new Point(352, 67);
             MBTeams.Name = "MBTeams";
             MBTeams.Size = new Size(75, 23);
             MBTeams.TabIndex = 21;
@@ -318,7 +341,7 @@
             // 
             // NotesButton
             // 
-            NotesButton.Location = new Point(205, 217);
+            NotesButton.Location = new Point(211, 242);
             NotesButton.Name = "NotesButton";
             NotesButton.Size = new Size(51, 23);
             NotesButton.TabIndex = 22;
@@ -326,11 +349,57 @@
             NotesButton.UseVisualStyleBackColor = true;
             NotesButton.Click += NotesButton_Click;
             // 
+            // ListBox2
+            // 
+            ListBox2.ContextMenuStrip = ContextMenuListBox;
+            ListBox2.FormattingEnabled = true;
+            ListBox2.ItemHeight = 15;
+            ListBox2.Location = new Point(12, 66);
+            ListBox2.Name = "ListBox2";
+            ListBox2.SelectionMode = SelectionMode.MultiExtended;
+            ListBox2.Size = new Size(193, 199);
+            ListBox2.TabIndex = 23;
+            ListBox2.SelectedIndexChanged += ListBox2_SelectedIndexChanged;
+            // 
+            // Listbox1Button
+            // 
+            Listbox1Button.Location = new Point(15, 37);
+            Listbox1Button.Name = "Listbox1Button";
+            Listbox1Button.Size = new Size(66, 23);
+            Listbox1Button.TabIndex = 24;
+            Listbox1Button.Text = "List1";
+            Listbox1Button.UseVisualStyleBackColor = true;
+            Listbox1Button.Click += Listbox1Button_Click;
+            // 
+            // Listbox2Button
+            // 
+            Listbox2Button.Location = new Point(87, 37);
+            Listbox2Button.Name = "Listbox2Button";
+            Listbox2Button.Size = new Size(65, 23);
+            Listbox2Button.TabIndex = 25;
+            Listbox2Button.Text = "List2";
+            Listbox2Button.UseVisualStyleBackColor = true;
+            Listbox2Button.Click += Listbox2Button_Click_1;
+            // 
+            // LoginButton2
+            // 
+            LoginButton2.Location = new Point(15, 272);
+            LoginButton2.Name = "LoginButton2";
+            LoginButton2.Size = new Size(66, 23);
+            LoginButton2.TabIndex = 26;
+            LoginButton2.Text = "Login";
+            LoginButton2.UseVisualStyleBackColor = true;
+            LoginButton2.Click += LoginButton2_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(437, 280);
+            ClientSize = new Size(445, 299);
+            Controls.Add(LoginButton2);
+            Controls.Add(Listbox2Button);
+            Controls.Add(Listbox1Button);
+            Controls.Add(ListBox2);
             Controls.Add(NotesButton);
             Controls.Add(MBTeams);
             Controls.Add(LabelTextColor);
@@ -394,5 +463,11 @@
         private ToolStripMenuItem Team3StripMenuItem;
         private ToolStripMenuItem Team4StripMenuItem;
         private Button NotesButton;
+        private ListBox ListBox2;
+        private Button Listbox1Button;
+        private Button Listbox2Button;
+        private ToolStripMenuItem MoveToListbox2ToolStripMenuItem;
+        private Button LoginButton2;
+        private ToolStripMenuItem moveToListbox1ToolStripMenuItem;
     }
 }
